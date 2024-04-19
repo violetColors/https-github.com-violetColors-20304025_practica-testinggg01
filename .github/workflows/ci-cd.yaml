@@ -52,13 +52,3 @@ jobs:
         run: npm install
       - name: Run unit and integration tests
         run: npm run test
-
-  slack:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify success on Slack
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_MESSAGE: 'CI-CD Success Violet'
