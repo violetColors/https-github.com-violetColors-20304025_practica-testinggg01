@@ -31,5 +31,11 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME2 }}/clockbox:latest
 
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v5.3.0
+  slack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify success on Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_MESSAGE: 'CI-CD Success Violet'
