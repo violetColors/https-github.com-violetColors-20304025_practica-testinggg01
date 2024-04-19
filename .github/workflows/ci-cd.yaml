@@ -34,15 +34,6 @@ jobs:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: 'violetmeow/taskapi:latest'
 
-  snyk:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
   slack:
     needs: [testing, build]
     runs-on: ubuntu-latest
@@ -52,3 +43,11 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_MESSAGE: 'CI-CD Success Violet'
+  snyk:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@master
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
