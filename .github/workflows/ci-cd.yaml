@@ -8,23 +8,28 @@ on:
 
 jobs:
   build:
-    name: Docker build
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME2 }}
           password: ${{ secrets.DOCKERHUB_TOKEN2 }}
-      - name: Publish website image
-        run: docker push violetmeow/taskapi:latest
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/taskapi:latest
 
   deploy:
     name: Web App deploy
-    needs:
-      - build
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: App service auth
@@ -34,20 +39,16 @@ jobs:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: 'violetmeow/taskapi:latest'
 
-  slack:
-    needs: [testing, build]
-    runs-on: ubuntu-latest
+  testing:
+    runs-on: windows-latest
     steps:
-      - name: Notify success on Slack
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_MESSAGE: 'CI-CD Success Violet'
-  snyk:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@master
-    - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/node@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Checkout repo
+        uses: actions/checkout@v4 # git clone into runner
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Install Dependencies
+        run: npm install
+      - name: Run unit and integration tests
+        run: npm run test
