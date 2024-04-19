@@ -18,8 +18,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME2 }}
           password: ${{ secrets.DOCKERHUB_TOKEN2 }}
-      - name: Build website image
-        run: docker build --platform linux --tag violetmeow/taskapi:latest -f src/Dockerfile .
       - name: Publish website image
         run: docker push violetmeow/taskapi:latest
 
